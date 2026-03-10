@@ -4,21 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TradeSimulator</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
 <h1>TradeSimulator v1.0</h1>
 
-<!-- ── Market Prices  -->
+<!-- Market Prices -->
 <div class="section">
-    <h2>Market Prices <span id="lastUpdated"></span></h2>
+    <h2>Market Prices
+        <span id="lastUpdated" style="font-size:14px; color:#888;"></span>
+    </h2>
     <table>
         <thead>
-        <tr>
-            <th>Ticker</th>
-            <th>Current Price</th>
-        </tr>
+        <tr><th>Ticker</th><th>Current Price</th></tr>
         </thead>
         <tbody id="pricesTable">
         <tr><td colspan="2">Loading...</td></tr>
@@ -26,7 +25,7 @@
     </table>
 </div>
 
-<!-- ── Portfolio -->
+<!-- Portfolio -->
 <div class="section">
     <h2>Portfolio</h2>
     <div class="cash-display">Cash: $<span id="cashBalance">0.00</span></div>
@@ -48,7 +47,7 @@
     </table>
 </div>
 
-<!-- ── Place Order  -->
+<!-- Place Order -->
 <div class="section">
     <h2>Place Order</h2>
     <div class="form-group">
@@ -87,13 +86,12 @@
     <div id="orderMessage"></div>
 </div>
 
-<! Pending Orders -->
+<!-- Pending Orders -->
 <div class="section">
     <h2>Pending Orders</h2>
     <table>
         <thead>
         <tr>
-            <th>ID</th>
             <th>Ticker</th>
             <th>Side</th>
             <th>Quantity</th>
@@ -103,12 +101,12 @@
         </tr>
         </thead>
         <tbody id="pendingOrdersTable">
-        <tr><td colspan="7">No pending orders</td></tr>
+        <tr><td colspan="6">No pending orders</td></tr>
         </tbody>
     </table>
 </div>
 
-<!-- ── Trade History ──────────────────────────────────────────── -->
+<!-- Trade History -->
 <div class="section">
     <h2>Trade History</h2>
     <table>
@@ -128,6 +126,6 @@
     </table>
 </div>
 
-<script src="app.js"></script>
+<script src="/js/app.js"></script>
 </body>
 </html>
