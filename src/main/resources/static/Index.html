@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeSimulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>TradeSimulator v1.0</h1>
+
+<!-- ── Market Prices  -->
+<div class="section">
+    <h2>Market Prices <span id="lastUpdated"></span></h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>Current Price</th>
+        </tr>
+        </thead>
+        <tbody id="pricesTable">
+        <tr><td colspan="2">Loading...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ── Portfolio -->
+<div class="section">
+    <h2>Portfolio</h2>
+    <div class="cash-display">Cash: $<span id="cashBalance">0.00</span></div>
+    <div class="total-display">Total Value: $<span id="totalValue">0.00</span></div>
+    <table>
+        <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>Quantity</th>
+            <th>Avg Cost</th>
+            <th>Current Price</th>
+            <th>Current Value</th>
+            <th>P&L</th>
+        </tr>
+        </thead>
+        <tbody id="holdingsTable">
+        <tr><td colspan="6">No holdings yet</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ── Place Order  -->
+<div class="section">
+    <h2>Place Order</h2>
+    <div class="form-group">
+        <label>Ticker:</label>
+        <select id="ticker">
+            <option value="AAPL">AAPL</option>
+            <option value="GOOG">GOOG</option>
+            <option value="TSLA">TSLA</option>
+            <option value="AMZN">AMZN</option>
+            <option value="MSFT">MSFT</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Side:</label>
+        <select id="side">
+            <option value="BUY">BUY</option>
+            <option value="SELL">SELL</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Order Type:</label>
+        <select id="orderType" onchange="toggleLimitPrice()">
+            <option value="MARKET">MARKET</option>
+            <option value="LIMIT">LIMIT</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Quantity:</label>
+        <input type="number" id="quantity" min="1" value="1">
+    </div>
+    <div class="form-group" id="limitPriceGroup" style="display:none;">
+        <label>Limit Price:</label>
+        <input type="number" id="limitPrice" min="0.01" step="0.01">
+    </div>
+    <button onclick="placeOrder()">Place Order</button>
+    <div id="orderMessage"></div>
+</div>
+
+<! Pending Orders -->
+<div class="section">
+    <h2>Pending Orders</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Ticker</th>
+            <th>Side</th>
+            <th>Quantity</th>
+            <th>Limit Price</th>
+            <th>Time</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="pendingOrdersTable">
+        <tr><td colspan="7">No pending orders</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ── Trade History ──────────────────────────────────────────── -->
+<div class="section">
+    <h2>Trade History</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Time</th>
+            <th>Ticker</th>
+            <th>Side</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody id="tradeHistoryTable">
+        <tr><td colspan="6">No trades yet</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
