@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TradeSimulator</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>TradeSimulator v1.0</title>
+    <base href="/StockTradingApp/">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
@@ -17,7 +18,10 @@
     </h2>
     <table>
         <thead>
-        <tr><th>Ticker</th><th>Current Price</th></tr>
+        <tr>
+            <th>Ticker</th>
+            <th>Current Price</th>
+        </tr>
         </thead>
         <tbody id="pricesTable">
         <tr><td colspan="2">Loading...</td></tr>
@@ -38,7 +42,7 @@
             <th>Avg Cost</th>
             <th>Current Price</th>
             <th>Current Value</th>
-            <th>P&L</th>
+            <th>P&amp;L</th>
         </tr>
         </thead>
         <tbody id="holdingsTable">
@@ -92,6 +96,7 @@
     <table>
         <thead>
         <tr>
+            <th>ID</th>
             <th>Ticker</th>
             <th>Side</th>
             <th>Quantity</th>
@@ -101,7 +106,7 @@
         </tr>
         </thead>
         <tbody id="pendingOrdersTable">
-        <tr><td colspan="6">No pending orders</td></tr>
+        <tr><td colspan="7">No pending orders</td></tr>
         </tbody>
     </table>
 </div>
