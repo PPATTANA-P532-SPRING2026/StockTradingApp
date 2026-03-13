@@ -1,3 +1,8 @@
+const API_BASE = window.location.hostname === 'localhost'
+    ? ''
+    : 'https://stocktradingapp.onrender.com';  // fill this in after Render setup
+
+
 const REFRESH_INTERVAL = 5000;
 
 //  on page load
