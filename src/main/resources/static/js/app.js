@@ -1,26 +1,22 @@
 const API_BASE = window.location.hostname === 'localhost'
     ? ''
-    : 'https://stocktradingapp.onrender.com';  // fill this in after Render setup
-
+    : 'https://stocktradingapp.onrender.com';
 
 const REFRESH_INTERVAL = 5000;
 
-//  on page load
 window.onload = function () {
     refreshAll();
     setInterval(refreshAll, REFRESH_INTERVAL);
 };
 
-//  refresh everything
 function refreshAll() {
     fetchPrices();
     fetchPortfolio();
     fetchTradeHistory();
 }
 
-//  fetch market prices
 function fetchPrices() {
-    fetch('/api/market')
+    fetch(`${API_BASE}/api/market`)
         .then(res => res.json())
         .then(data => {
             const tbody = document.getElementById('pricesTable');
@@ -39,18 +35,15 @@ function fetchPrices() {
         .catch(err => console.error('Error fetching prices:', err));
 }
 
-//  fetch portfolio
 function fetchPortfolio() {
-    fetch('/api/portfolio')
+    fetch(`${API_BASE}/api/portfolio`)
         .then(res => res.json())
         .then(data => {
-            // update cash and total value
             document.getElementById('cashBalance').textContent =
                 parseFloat(data.cash).toFixed(2);
             document.getElementById('totalValue').textContent =
                 parseFloat(data.totalValue).toFixed(2);
 
-            // update holdings table
             const holdingsTbody = document.getElementById('holdingsTable');
             holdingsTbody.innerHTML = '';
             const holdings = data.holdings;
@@ -75,7 +68,6 @@ function fetchPortfolio() {
                 });
             }
 
-            // update pending orders table
             const pendingTbody = document.getElementById('pendingOrdersTable');
             pendingTbody.innerHTML = '';
             const pendingOrders = data.pendingOrders;
@@ -106,9 +98,8 @@ function fetchPortfolio() {
         .catch(err => console.error('Error fetching portfolio:', err));
 }
 
-//  fetch trade history
 function fetchTradeHistory() {
-    fetch('/api/trades')
+    fetch(`${API_BASE}/api/trades`)
         .then(res => res.json())
         .then(data => {
             const tbody = document.getElementById('tradeHistoryTable');
@@ -117,7 +108,6 @@ function fetchTradeHistory() {
                 tbody.innerHTML =
                     '<tr><td colspan="6">No trades yet</td></tr>';
             } else {
-                // show most recent trades first
                 [...data].reverse().forEach(trade => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -135,7 +125,6 @@ function fetchTradeHistory() {
         .catch(err => console.error('Error fetching trades:', err));
 }
 
-// place order
 function placeOrder() {
     const ticker = document.getElementById('ticker').value;
     const side = document.getElementById('side').value;
@@ -148,7 +137,7 @@ function placeOrder() {
         body.limitPrice = limitPrice;
     }
 
-    fetch('/api/orders', {
+    fetch(`${API_BASE}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
@@ -156,8 +145,7 @@ function placeOrder() {
         .then(res => {
             if (res.ok) {
                 return res.json().then(data => {
-                    showMessage('orderMessage',
-                        `Order placed successfully!`, 'success');
+                    showMessage('orderMessage', 'Order placed successfully!', 'success');
                     refreshAll();
                 });
             } else {
@@ -169,30 +157,25 @@ function placeOrder() {
         .catch(err => console.error('Error placing order:', err));
 }
 
-//  cancel order
 function cancelOrder(orderId) {
-    fetch(`/api/orders/${orderId}`, { method: 'DELETE' })
+    fetch(`${API_BASE}/api/orders/${orderId}`, { method: 'DELETE' })
         .then(res => {
             if (res.ok) {
-                showMessage('orderMessage',
-                    'Order cancelled successfully', 'success');
+                showMessage('orderMessage', 'Order cancelled successfully', 'success');
                 refreshAll();
             } else {
-                showMessage('orderMessage',
-                    'Could not cancel order', 'error');
+                showMessage('orderMessage', 'Could not cancel order', 'error');
             }
         })
         .catch(err => console.error('Error cancelling order:', err));
 }
 
-//toggle limit price field
 function toggleLimitPrice() {
     const type = document.getElementById('orderType').value;
     const limitPriceGroup = document.getElementById('limitPriceGroup');
     limitPriceGroup.style.display = type === 'LIMIT' ? 'block' : 'none';
 }
 
-// show message helper
 function showMessage(elementId, message, type) {
     const el = document.getElementById(elementId);
     el.textContent = message;
