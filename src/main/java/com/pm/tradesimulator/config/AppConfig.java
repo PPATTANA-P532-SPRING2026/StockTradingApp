@@ -22,7 +22,7 @@ public class AppConfig {
                 registry.addMapping("/api/**")
                         .allowedOrigins(
                                 "http://localhost:8080",
-                                "https://PPATTANA-P532-SPRING2026.github.io"
+                                "https://ppattana-p532-spring2026.github.io"
                         )
                         .allowedMethods("GET", "POST", "DELETE");
             }
