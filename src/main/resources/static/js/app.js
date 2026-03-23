@@ -13,6 +13,9 @@ function refreshAll() {
     fetchPrices();
     fetchPortfolio();
     fetchTradeHistory();
+    fetchStrategy();
+    fetchBadgeCount();
+    fetchActiveUser();
 }
 
 function fetchPrices() {
@@ -181,4 +184,108 @@ function showMessage(elementId, message, type) {
     el.textContent = message;
     el.className = type;
     setTimeout(() => { el.textContent = ''; }, 4000);
+}
+
+function fetchStrategy() {
+    fetch(`${API_BASE}/api/strategy`)
+        .then(res => res.json())
+        .then(data => {
+            const select = document.getElementById('strategySelect');
+            const name = data.strategy;
+            if (name.includes('MeanReversion'))       select.value = 'meanReversion';
+            else if (name.includes('TrendFollowing')) select.value = 'trendFollowing';
+            else                                       select.value = 'randomWalk';
+        })
+        .catch(err => console.error('Error fetching strategy:', err));
+}
+
+function changeStrategy() {
+    const strategy = document.getElementById('strategySelect').value;
+    fetch(`${API_BASE}/api/strategy`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ strategy })
+    })
+    .then(res => res.json())
+    .then(data => {
+        showMessage('strategyMessage',
+            `Strategy changed to ${strategy}`, 'success');
+    })
+    .catch(err => console.error('Error changing strategy:', err));
+}
+
+// ── fetch badge count ─────────────────────────────────────────────────
+function fetchBadgeCount() {
+    fetch(`${API_BASE}/api/notifications/badge`)
+        .then(res => res.json())
+        .then(data => {
+            const badge = document.getElementById('badgeBubble');
+            if (data.badgeCount > 0) {
+                badge.textContent = data.badgeCount;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+        })
+        .catch(err => console.error('Error fetching badge:', err));
+}
+
+// ── update notification channels ─────────────────────────────────────
+function updateChannels() {
+    const channels = ['console']; // console always included
+    if (document.getElementById('chEmail').checked)     channels.push('email');
+    if (document.getElementById('chSms').checked)       channels.push('sms');
+    if (document.getElementById('chDashboard').checked) channels.push('dashboard');
+
+    fetch(`${API_BASE}/api/notifications/channels`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ channels })
+    })
+    .then(res => res.json())
+    .then(data => {
+        showMessage('notificationMessage',
+            'Notification channels updated', 'success');
+    })
+    .catch(err => console.error('Error updating channels:', err));
+}
+
+// ── reset badge count ─────────────────────────────────────────────────
+function resetBadge() {
+    fetch(`${API_BASE}/api/notifications/reset`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('badgeBubble').style.display = 'none';
+            showMessage('notificationMessage', 'Badge reset', 'success');
+        })
+        .catch(err => console.error('Error resetting badge:', err));
+
+}
+
+// fetch active user on load
+function fetchActiveUser() {
+    fetch(`${API_BASE}/api/users/active`)
+        .then(res => res.json())
+        .then(data => {
+            const select = document.getElementById('userSelect');
+            select.value = data.id;
+        })
+        .catch(err => console.error('Error fetching active user:', err));
+}
+
+//  switch active user
+function switchUser() {
+    const userId = document.getElementById('userSelect').value;
+    fetch(`${API_BASE}/api/users/active`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        showMessage('userMessage',
+            `Switched to ${data.name}`, 'success');
+        refreshAll();   // refresh portfolio for new user
+    })
+    .catch(err => console.error('Error switching user:', err));
 }

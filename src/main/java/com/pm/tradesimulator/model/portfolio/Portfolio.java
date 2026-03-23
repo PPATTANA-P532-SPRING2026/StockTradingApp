@@ -1,4 +1,5 @@
 package com.pm.tradesimulator.model.portfolio;
+import com.pm.tradesimulator.model.order.Order;
 import com.pm.tradesimulator.model.order.Side;
 import org.springframework.stereotype.Component;
 
@@ -9,11 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component
+
 public class Portfolio {
     private BigDecimal cash = new BigDecimal("10000.00");
     private Map<String, Holding> holdings = new HashMap<>();
     private List<TradeRecord> tradeHistory = new ArrayList<>();
+    private final List<Order> pendingOrders = new ArrayList<>();
 
     public BigDecimal getCash() { return cash; }
 
@@ -80,4 +82,8 @@ public class Portfolio {
         tradeHistory.add(record);
     }
 
+
+    public List<Order> getPendingOrders() {
+        return pendingOrders;
+    }
 }

@@ -4,5 +4,5 @@ import java.math.BigDecimal;
 import java.util.Random;
 
 public interface PriceUpdateStrategies {
-    BigDecimal nextPrice(BigDecimal currentPrice, Random rng);
+    BigDecimal nextPrice(String ticker, BigDecimal currentPrice, Random rng);
 }

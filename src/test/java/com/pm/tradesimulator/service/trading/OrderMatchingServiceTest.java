@@ -3,11 +3,8 @@ package com.pm.tradesimulator.service.trading;
 import com.pm.tradesimulator.model.order.OrderStatus;
 import com.pm.tradesimulator.model.order.OrderType;
 import com.pm.tradesimulator.model.order.Side;
-import com.pm.tradesimulator.model.portfolio.Portfolio;
 import com.pm.tradesimulator.service.market.MarketFeedServices;
-import com.pm.tradesimulator.service.notification.NotificationService;
-import com.pm.tradesimulator.service.trading.OrderMatchingService;
-import com.pm.tradesimulator.service.trading.TradingService;
+import com.pm.tradesimulator.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,23 +22,19 @@ import static org.mockito.Mockito.*;
 class OrderMatchingServiceTest {
 
     @Mock
-    private MarketFeedServices marketFeedService;
+    private MarketFeedServices marketFeedServices;
 
-    @Mock
-    private NotificationService notificationService;
-
-    private Portfolio portfolio;
+    private UserService userService;
     private TradingService tradingService;
     private OrderMatchingService orderMatchingService;
 
     @BeforeEach
     void setUp() {
         // Arrange
-        portfolio = new Portfolio();
-        tradingService = new TradingService(portfolio, marketFeedService,
-                notificationService);
-        orderMatchingService = new OrderMatchingService(marketFeedService,
-                tradingService);
+        userService           = new UserService();
+        tradingService        = new TradingService(userService, marketFeedServices);
+        orderMatchingService  = new OrderMatchingService(
+                marketFeedServices, tradingService, userService);
     }
 
     @Test
@@ -65,7 +58,7 @@ class OrderMatchingServiceTest {
     @Test
     void limit_buy_triggers_when_price_at_or_below_limit() {
         // Arrange
-        when(marketFeedService.getPrice("AAPL"))
+        when(marketFeedServices.getPrice("AAPL"))
                 .thenReturn(new BigDecimal("168.00"));
         tradingService.placeOrder(OrderType.LIMIT, "AAPL",
                 Side.BUY, 10,
@@ -83,7 +76,7 @@ class OrderMatchingServiceTest {
     @Test
     void limit_sell_does_not_trigger_when_price_below_limit() {
         // Arrange — buy shares first
-        when(marketFeedService.getPrice("AAPL"))
+        when(marketFeedServices.getPrice("AAPL"))
                 .thenReturn(new BigDecimal("100.00"));
         tradingService.placeOrder(OrderType.MARKET, "AAPL",
                 Side.BUY, 10, null);
@@ -103,12 +96,12 @@ class OrderMatchingServiceTest {
     @Test
     void limit_sell_triggers_when_price_at_or_above_limit() {
         // Arrange — buy shares first
-        when(marketFeedService.getPrice("AAPL"))
+        when(marketFeedServices.getPrice("AAPL"))
                 .thenReturn(new BigDecimal("100.00"));
         tradingService.placeOrder(OrderType.MARKET, "AAPL",
                 Side.BUY, 10, null);
 
-        when(marketFeedService.getPrice("AAPL"))
+        when(marketFeedServices.getPrice("AAPL"))
                 .thenReturn(new BigDecimal("205.00"));
         tradingService.placeOrder(OrderType.LIMIT, "AAPL",
                 Side.SELL, 10,
@@ -121,7 +114,7 @@ class OrderMatchingServiceTest {
 
         // Assert — order executed
         assertEquals(0, tradingService.getPendingOrders().size());
-        assertTrue(portfolio.getCash()
+        assertTrue(userService.getActiveUser().getPortfolio().getCash()
                 .compareTo(new BigDecimal("9000.00")) > 0);
     }
 }

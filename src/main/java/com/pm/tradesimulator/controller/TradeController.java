@@ -3,9 +3,9 @@ package com.pm.tradesimulator.controller;
 import com.pm.tradesimulator.model.order.Order;
 import com.pm.tradesimulator.model.order.OrderType;
 import com.pm.tradesimulator.model.order.Side;
-import com.pm.tradesimulator.model.portfolio.Portfolio;
 import com.pm.tradesimulator.model.portfolio.TradeRecord;
 import com.pm.tradesimulator.service.trading.TradingService;
+import com.pm.tradesimulator.service.user.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,26 +17,28 @@ import java.util.Map;
 @RequestMapping("/api")
 public class TradeController {
 
-    private TradingService tradingService;
-    private Portfolio portfolio;
+    private final TradingService tradingService;
+    private final UserService userService;
 
-    public TradeController(TradingService tradingService, Portfolio portfolio) {
+    public TradeController(TradingService tradingService,
+                           UserService userService) {
         this.tradingService = tradingService;
-        this.portfolio = portfolio;
+        this.userService    = userService;
     }
 
     @PostMapping("/orders")
     public ResponseEntity<?> placeOrder(@RequestBody Map<String, String> body) {
         try {
-            String ticker = body.get("ticker");
-            Side side = Side.valueOf(body.get("side").toUpperCase());
-            OrderType type = OrderType.valueOf(body.get("type").toUpperCase());
-            int quantity = Integer.parseInt(body.get("quantity"));
+            String ticker    = body.get("ticker");
+            Side side        = Side.valueOf(body.get("side").toUpperCase());
+            OrderType type   = OrderType.valueOf(body.get("type").toUpperCase());
+            int quantity     = Integer.parseInt(body.get("quantity"));
             BigDecimal limitPrice = body.get("limitPrice") != null
                     ? new BigDecimal(body.get("limitPrice"))
                     : null;
 
-            Order order = tradingService.placeOrder(type, ticker, side, quantity, limitPrice);
+            Order order = tradingService.placeOrder(
+                    type, ticker, side, quantity, limitPrice);
             return ResponseEntity.ok(order);
 
         } catch (IllegalArgumentException e) {
@@ -55,6 +57,6 @@ public class TradeController {
 
     @GetMapping("/trades")
     public List<TradeRecord> getTradeHistory() {
-        return portfolio.getTradeHistory();
+        return userService.getActiveUser().getPortfolio().getTradeHistory();
     }
 }

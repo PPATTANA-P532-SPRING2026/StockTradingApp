@@ -8,6 +8,11 @@ public abstract class NotificationDecorator implements NotificationService {
         this.wrapped = wrapped;
     }
 
+    // ← add this so NotificationController can rewire the chain
+    public void setWrapped(NotificationService wrapped) {
+        this.wrapped = wrapped;
+    }
+
     @Override
     public void notify(String message) {
         wrapped.notify(message);

@@ -2,66 +2,70 @@ package com.pm.tradesimulator.service.trading;
 
 import com.pm.tradesimulator.model.order.Order;
 import com.pm.tradesimulator.model.order.OrderStatus;
+import com.pm.tradesimulator.model.user.User;
 import com.pm.tradesimulator.service.market.MarketFeedServices;
 import com.pm.tradesimulator.service.market.PriceObserver;
+import com.pm.tradesimulator.service.user.UserService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class OrderMatchingService implements PriceObserver {
 
-    private MarketFeedServices marketFeedService;
-    private TradingService tradingService;
+    private final MarketFeedServices marketFeedServices;
+    private final TradingService tradingService;
+    private final UserService userService;
 
-    public OrderMatchingService(MarketFeedServices marketFeedService,
-                                TradingService tradingService) {
-        this.marketFeedService = marketFeedService;
-        this.tradingService = tradingService;
+    public OrderMatchingService(MarketFeedServices marketFeedServices,
+                                TradingService tradingService,
+                                UserService userService) {
+        this.marketFeedServices = marketFeedServices;
+        this.tradingService     = tradingService;
+        this.userService        = userService;
     }
-
-    // we register with MarketFeedService at startup we use post construct so it only constructs it after the objects are fully initialized
 
     @PostConstruct
     public void init() {
-        marketFeedService.register(this);
+        marketFeedServices.register(this);
     }
-
-    // to react to every price update
 
     @Override
     public void onPriceUpdate(Map<String, BigDecimal> prices) {
-        List<Order> pendingOrders = tradingService.getPendingOrders();
+        // check pending orders for ALL users
+        for (User user : userService.getAllUsers()) {
+            List<Order> pendingOrders = user.getPortfolio().getPendingOrders();
+            List<Order> toExecute    = new ArrayList<>();
 
-        // collect orders to execute we don't modify list during iteration(it failed the test due to concurrent modification)
-        List<Order> toExecute = new ArrayList<>();
+            for (Order order : pendingOrders) {
+                BigDecimal currentPrice = prices.get(order.getTicker());
+                if (currentPrice == null) continue;
 
-        for (Order order : pendingOrders) {
-            BigDecimal currentPrice = prices.get(order.getTicker());
-
-            if (currentPrice == null) {
-                continue;
+                if (order.getStatus() == OrderStatus.PENDING &&
+                        order.isReadyToExecute(currentPrice)) {
+                    toExecute.add(order);
+                }
             }
 
-            if (order.getStatus() == OrderStatus.PENDING &&
-                    order.isReadyToExecute(currentPrice)) {
-                toExecute.add(order);
-            }
-        }
+            // temporarily switch active user to execute their orders
+            String previousUserId = userService.getActiveUserId();
+            userService.setActiveUser(user.getId());
 
-        // now we execute when iteration is finished now it is safe to modify the list
-        for (Order order : toExecute) {
-            try {
-                tradingService.execute(order);
-            } catch (IllegalArgumentException e) {
-                order.setStatus(OrderStatus.CANCELLED);
-                pendingOrders.remove(order);
+            for (Order order : toExecute) {
+                try {
+                    tradingService.execute(order);
+                } catch (IllegalArgumentException e) {
+                    order.setStatus(OrderStatus.CANCELLED);
+                    pendingOrders.remove(order);
+                }
             }
+
+            // restore previous active user
+            userService.setActiveUser(previousUserId);
         }
     }
 }
