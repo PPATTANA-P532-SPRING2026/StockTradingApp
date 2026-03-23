@@ -23,15 +23,14 @@ class RandomWalkStrategyTest {
         BigDecimal initialPrice = new BigDecimal("100.00");
         Random seededRandom = new Random(42);
 
-        // Act + Assert — run 1000 iterations
+        // Act + Assert
         BigDecimal price = initialPrice;
         for (int i = 0; i < 1000; i++) {
-            BigDecimal newPrice = strategy.nextPrice(price, seededRandom);
-
+            BigDecimal newPrice = strategy.nextPrice("AAPL", price, seededRandom); // ← fix
             BigDecimal maxPrice = price.multiply(new BigDecimal("1.02"))
-                    .setScale(2, RoundingMode.CEILING); // round UP for max
+                    .setScale(2, RoundingMode.CEILING);
             BigDecimal minPrice = price.multiply(new BigDecimal("0.98"))
-                    .setScale(2, RoundingMode.FLOOR);   // round DOWN for min
+                    .setScale(2, RoundingMode.FLOOR);
 
             assertTrue(newPrice.compareTo(minPrice) >= 0,
                     "Price dropped below -2%: " + newPrice);
@@ -50,8 +49,8 @@ class RandomWalkStrategyTest {
         Random seededRandom2 = new Random(42);
 
         // Act
-        BigDecimal price1 = strategy.nextPrice(initialPrice, seededRandom1);
-        BigDecimal price2 = strategy.nextPrice(initialPrice, seededRandom2);
+        BigDecimal price1 = strategy.nextPrice("AAPL", initialPrice, seededRandom1); // ← fix
+        BigDecimal price2 = strategy.nextPrice("AAPL", initialPrice, seededRandom2); // ← fix
 
         // Assert
         assertEquals(price1, price2);
@@ -64,7 +63,7 @@ class RandomWalkStrategyTest {
         Random seededRandom = new Random(42);
 
         // Act
-        BigDecimal newPrice = strategy.nextPrice(initialPrice, seededRandom);
+        BigDecimal newPrice = strategy.nextPrice("AAPL", initialPrice, seededRandom); // ← fix
 
         // Assert
         assertTrue(newPrice.compareTo(BigDecimal.ZERO) > 0);

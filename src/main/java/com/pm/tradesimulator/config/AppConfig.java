@@ -29,15 +29,9 @@ public class AppConfig {
         };
     }
 
-    @Bean
-    public PriceUpdateStrategies priceUpdateStrategies() {
-        return new RandomWalkStrategy();
-    }
 
-    @Bean
-    public NotificationService notificationService() {
-        return new ConsoleNotifier();
-    }
+
+
 
     @Bean
     public Random random() {
